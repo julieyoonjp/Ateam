@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Car Captcha</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+  <style>
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+  </style>
+</head>
+<body>
+  <script>
+    //중간광고 이미지
+    let adImg;
+    let nextImg;
+    let bookad = true; // Set this to true to display the ad
+    let nextImgX = 400;
+    let nextImgY = 500;
+    let adImgWidth;
+    let adImgHeight;
+    let closeadX;
+    let closeadY;
+    let textColor;
+
+    function preload() {
+      //중간광고 프리로드
+      adImg = loadImage('assets/bookad.png');
+    }
+
+    function setup() {
+      createCanvas(windowWidth, windowHeight);
+      adImgWidth = 400;
+      adImgHeight = 400;
+      closeadX = windowWidth/2 - 195;
+      closeadY = height/2 + adImgHeight/2 - 4;
+      textColor = color(0);
+    }
+
+    function draw() {
+      background(220);
+      fill(60, 93, 167);
+      noStroke();
+      rect(0, 0, windowWidth, windowHeight);
+      fill(249, 249, 249);
+      rect(0, 50, windowWidth, windowHeight);
+
+      if (bookad) {
+        fill(0, 150);
+        noStroke();
+        rect(0, 0, width, height);
+        image(
+          adImg,
+          width / 2 - adImgWidth / 2,
+          height / 2 - adImgHeight / 2,
+          adImgWidth,
+          adImgHeight
+        );
+
+        textColor = lerpColor(color(0), color(255), millis() / 4000);
+        fill(textColor);
+        textSize(10);
+        textAlign(LEFT);
+        text("Close", closeadX, closeadY);
+      }
+    }
+
+    function mouseClicked() {
+      if (bookad === true) {
+        // Check if the click occurs at the specified coordinates (left-bottom 20x20 area)
+        if (
+          mouseX > closeadX &&
+          mouseX < closeadX + 30 &&
+          mouseY > closeadY - 30 &&
+          mouseY < closeadY + 10
+        ) {
+          console.log("Clicked close button");
+          window.location.href = 'thirdpage.html'; // Change the filename here
+        }
+      }
+    }
+  </script>
+</body>
+</html>

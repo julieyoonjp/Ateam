@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+  <style>
+    body {
+      margin: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background-color: #ececec;
+    }
+  </style>
+  <title>Your p5.js Sketch</title>
+</head>
+<body>
+  <script>
+
+let cam;
+let snapshots = [];
+let photoTaken = false;
+let countdown = 3;
+let nextButton;
+let defaultImg;
+let toptitle;
+let boyscreenshotImg;
+let boyscreenshotImgY = 1200;
+let greetingTextVisible = true;
+let activateButton; // New button for camera activation
+
+function preload() {
+  defaultImg = loadImage("assets/defaultbg.png");
+  toptitle = loadImage("assets/toptitle.png");
+  boyscreenshotImg = loadImage("assets/boyscreenshot.png");
+}
+
+function setup() {
+  createCanvas(windowWidth, windowHeight);
+
+  // Set up the camera activation button
+  activateButton = createButton('프로필 👩🏻 완성 마지막 단계㉰ ❤ ');
+  activateButton.position(windowWidth / 2 - 150, windowHeight / 3);
+  activateButton.style('font-size', '20px'); // Set button text size
+  activateButton.size(300, 100); // Set button size
+  activateButton.mousePressed(activateCamera);
+
+  cam = createCapture(VIDEO);
+  cam.size(700, 400); // Set the size of the camera
+  cam.hide();
+
+  // Set up the "Next Page" button (initially hidden)
+  nextButton = createButton('Next Page');
+  nextButton.position(windowWidth / 2, windowHeight / 3 + 250);
+  nextButton.style('font-size', '12px'); // Set button text size
+  nextButton.size(100, 20); // Set button size
+  nextButton.mousePressed(goToNextPage);
+  nextButton.hide(); // Hide the button initially
+}
+
+function draw() {
+  background(220);
+
+  // Display default background
+  fill(60, 93, 167);
+  noStroke();
+  rect(0, 0, windowWidth, windowHeight);
+  fill(249, 249, 249);
+  rect(0, 50, windowWidth, windowHeight);
+  imageMode(CENTER);
+  image(defaultImg, windowWidth / 2, 380, 800, 600);
+  image(toptitle, windowWidth / 2, 28, 275, 25);
+
+  // Display camera in the center
+  image(cam, windowWidth / 2, windowHeight / 3, 600, 400);
+
+  if (greetingTextVisible && countdown > 0) {
+    // Display countdown text
+    textSize(60);
+    textAlign(CENTER, CENTER);
+    fill(255);
+    textStyle(BOLD);
+    text(countdown, windowWidth / 2, windowHeight / 3);
+  }
+
+  if (boyscreenshotImgY > 600) {
+    boyscreenshotImgY -= 20;
+  }
+
+  image(boyscreenshotImg, windowWidth - 500, boyscreenshotImgY, 500, 500);
+
+  // Check if photo has been taken and stop the loop
+  if (photoTaken) {
+    noLoop();
+  }
+}
+
+function takeSnapshot() {
+  const imgWidth = cam.width;
+  const imgHeight = cam.height;
+  const x = (windowWidth - imgWidth) / 2;
+  const y = (windowHeight - imgHeight) / 3;
+
+  // Create an offscreen canvas to draw the captured image
+  const offscreenCanvas = createGraphics(imgWidth, imgHeight);
+  offscreenCanvas.image(cam, 0, 0, imgWidth, imgHeight);
+
+  // Capture only the camera area
+  image(offscreenCanvas, x, y, imgWidth, imgHeight);
+  const imgDataUrl = offscreenCanvas.canvas.toDataURL("image/png");
+
+  // Save the image data in localStorage
+  localStorage.setItem("latestPhotoData", imgDataUrl);
+
+  // Store the image in snapshots
+  snapshots.push(loadImage(imgDataUrl));
+
+  // Set the flag to indicate that the photo has been taken
+  photoTaken = true;
+}
+
+function goToNextPage() {
+  // Switch to another HTML file when the button is clicked
+  window.location.href = "sixthpage.html";
+}
+
+function activateCamera() {
+  // Remove the camera activation button
+  activateButton.remove();
+
+  // Delay the activation by 5 seconds
+  setTimeout(() => {
+    // Set up the countdown after the delay
+    setInterval(() => {
+      if (!photoTaken && countdown > 0) {
+        countdown--;
+
+        // If the countdown reaches 0, take a snapshot
+        if (countdown === 0) {
+          takeSnapshot();
+          // Display the "Next Page" button
+          nextButton.show();
+          // Hide greeting text
+          greetingTextVisible = false;
+        }
+      }
+    }, 1000);
+  }, 5000);
+}
+
+
+     
+  </script>
+</body>
+</html>

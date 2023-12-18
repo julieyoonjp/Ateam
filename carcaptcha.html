@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Car Captcha</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+  <style>
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+  </style>
+</head>
+<body>
+  <script>
+    class CarCaptcha {
+      constructor() {
+        this.carImg = null;
+        this.bgImg = null;
+        this.gridImg = null;
+        this.ltred = null;
+        this.ltgreen = null;
+        this.ok = null;
+        this.redo = null;
+        this.soundImg = null;
+        this.boxImg = null;
+
+        this.trafficState = "gr";
+
+        this.carX = 120;
+        this.carY = 310;
+
+        this.carMove = false;
+        this.carSpeedX = 2.8;
+        this.carSpeedY = 0.8;
+
+        this.carbox = false;
+        this.carlight = false;
+
+        this.rectOpacity = 0;
+        this.rectTargetOpacity = 255;
+        this.fadeDuration = 15*60;
+      }
+
+      preload() {
+        this.carImg = loadImage("assets/car.png");
+        this.bgImg = loadImage("assets/background.png");
+        this.gridImg = loadImage("assets/grid.png");
+        this.ltred = loadImage("assets/trafficlightred.png");
+        this.ltgreen = loadImage("assets/trafficlightgreen.png");
+        this.redo = loadImage("assets/redo.png");
+        this.ok = loadImage("assets/ok.png");
+        this.soundImg = loadImage("assets/sound.png");
+        this.boxImg = loadImage("assets/box.png");
+      }
+
+      setup() {
+        createCanvas(400, 600);
+      }
+
+      draw() {
+        background(200);
+
+
+        image(this.bgImg, 0, 0, width, height);
+
+        if(this.carlight){
+          this.rectOpacity = lerp (this.rectOpacity,this.rectTargetOpacity, 1/this.fadeDuration);
+          fill(255,255,0, this.rectOpacity);
+          rect(this.carX, this.carY, 120, 100);
+        }
+        
+        image(this.carImg, this.carX, this.carY, 120, 100);
+
+        if (this.trafficState === "gr") {
+          image(this.ltgreen, 156, 185, 50, 50);
+        } else if (this.trafficState === "rd") {
+          image(this.ltred, 156, 185, 50, 50);
+          this.carSpeedX = 0;
+          this.carSpeedY = 0;
+        }
+
+        image(this.gridImg, 0, 0, width, height);
+        image(this.ok, 10, 520, 30, 30);
+        image(this.redo, 60, 519, 30, 30);
+        image(this.soundImg, 115, 519, 30, 30);
+
+
+        if (this.carbox) {
+          image(this.boxImg, this.carX, this.carY, 120, 100);
+        }
+
+        if (this.carMove) {
+          if (this.carX < 400) {
+            this.carX += this.carSpeedX;
+            this.carY += this.carSpeedY;
+          } else {
+            this.carX = -100;
+            this.carY = 250;
+          }
+          this.rectOpacity = lerp (this.rectOpacity,this.rectTargetOpacity, 1/this.fadeDuration);
+          stroke(255,255,0, this.rectOpacity);
+          strokeWeight(3);
+          noFill();
+          rect(166,185,50,60);
+        }
+
+
+      }
+
+      mouseClicked() {
+        if (
+          mouseX >= 156 &&
+          mouseX <= 206 &&
+          mouseY >= 185 &&
+          mouseY <= 235
+        ) {
+          this.trafficState = this.trafficState === "gr" ? "rd" : "gr";
+          this.carX = 120;
+          this.carY = 310;
+          this.carlight = !this.carlight;
+        }
+
+        if (
+          mouseX >= this.carX &&
+          mouseX <= this.carX + this.carImg.width &&
+          mouseY >= this.carY &&
+          mouseY <= this.carY + this.carImg.height
+        ) {
+          if (this.trafficState === "gr" && !this.carMove) {
+            this.carMove = true;
+          } else if (this.trafficState === "rd" && this.carMove) {
+            this.carbox = !this.carbox;
+          }
+        }
+
+        if (
+          mouseX >= 10 &&
+          mouseX <= 40 &&
+          mouseY >= 520 &&
+          mouseY <= 550
+        ) {
+          if(carCaptcha.trafficState === "rd" && this.carbox === true){
+            window.close();
+          }
+        }
+      }
+    }
+
+    const carCaptcha = new CarCaptcha();
+
+    function preload() {
+      carCaptcha.preload();
+    }
+
+    function setup() {
+      carCaptcha.setup();
+    }
+
+    function draw() {
+      carCaptcha.draw();
+    }
+
+    function mouseClicked() {
+      carCaptcha.mouseClicked();
+    }
+  </script>
+</body>
+</html>

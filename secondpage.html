@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/addons/p5.sound.js"></script>
+
+
+  <style>
+    body {
+      margin: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background-color: #ececec;
+    }
+  </style>
+  <title>Your p5.js Sketch</title>
+</head>
+<body>
+  <script>
+let title;2
+let toptitle;
+//버튼 효과음
+let buttonClickSound = [];
+
+//이름입력창
+let idInputButton;
+let retryButton; // 다시입력하기 버튼
+let buttons = [];
+let inputText = '';
+let shapeRect;
+let shapeText = "여기를 클릭해주세요";
+let showIdCompleteText = false;
+let shapeRectActive = true; // shapeRect의 활성/비활성 상태
+
+//2.14세
+let checkbox;
+
+//다음페이지
+let nextImg;
+let bookad = true; // Set this to true to display the ad
+let nextImgX = 400;
+let nextImgY = 500;
+let clickableAreaX;
+let clickableAreaY;
+let backImg;
+let backclickX;
+let backclickY;
+
+let secondad;
+
+
+function preload(){
+  defaultImg = loadImage("assets/defaultbg.png");
+  toptitle = loadImage("assets/toptitle.png");
+  title = loadImage("assets/title.png");
+
+  //중간광고 프리로드
+  nextImg = loadImage("assets/next.png");
+  backImg = loadImage("assets/back.png");
+
+ // 버튼 소리
+ buttonClickSound[0] = loadSound("assets/fart1.mp3");
+  buttonClickSound[1] = loadSound("assets/fart4.mp3");
+  buttonClickSound[2] = loadSound("assets/fart3.mp3");
+
+  secondad = loadImage("assets/secondpagead.png");
+
+}
+
+// function soundLoaded() {
+//   // 모든 사운드가 로드되었는지 확인하고 상호 작용을 허용하기 전에 setup 함수를 호출합니다.
+//   const allSoundsLoaded = buttonClickSound.every(sound => sound.isLoaded());
+//   if (allSoundsLoaded) {
+//     setup();
+//   }
+// }
+
+function setup() {
+  createCanvas(windowWidth,windowHeight);
+  
+  //다음페이지
+  clickableAreaX = windowWidth/2 -30;
+  clickableAreaY = 600
+  backclickX = windowWidth/2 +30;
+  backclickY = 600
+
+  // 1. 이름 키보드 
+      // 키보드 자판 생성 
+      shapeRect = createButton(shapeText);
+      shapeRect.position(windowWidth / 2 - 140, 300);
+      shapeRect.size(240, 40);
+      shapeRect.style('background-color', 'rgba(60, 93, 167, 200)');
+      shapeRect.mousePressed(() => {
+        if (shapeRectActive) { 
+        shapeRectPressed();
+        buttons.forEach(button => {
+          button.html(button.elt.innerText);
+          button.show();
+        });
+      }
+      });
+
+     //이름 키보드 자판 생성
+     createButtons();
+      // "아이디입력" 버튼 생성
+      idInputButton = createButton('아이디입력');
+      idInputButton.position(windowWidth / 2 + 160, 300);
+      idInputButton.size(100, 40);
+      idInputButton.mousePressed(idInputButtonPressed);
+
+ // "다시입력하기" 버튼 생성
+ retryButton = createButton('다시입력하기');
+  retryButton.position(windowWidth / 2 + 280, 300);
+  retryButton.size(100, 40);
+  retryButton.mousePressed(retryButtonPressed);
+  retryButton.hide(); // 일단 숨김
+
+ 
+         //2. 14세 미만 체크박스 생성
+      checkbox = createCheckbox('만 14세 미만입니다', false);
+      checkbox.position(windowWidth / 2 - 75, 545);
+      checkbox.size(200);
+      // 체크 박스 상태가 변경될 때 호출될 함수 설정
+      checkbox.changed(toggleCheckbox);
+      checkbox.checked(true); // 체크박스 초기에 체크되도록 설정
+    }
+
+ //아이디 입력 창
+ function idInputButtonPressed() {
+      console.log('아이디입력 버튼이 눌렸습니다.');
+      // buttonPressed 함수를 더 이상 작동하지 않도록 비활성화
+      buttonPressed = function () {};
+      // 아이디 입력 버튼의 텍스트를 '입력완료'로 변경
+      idInputButton.html('입력완료');
+      // 아이디 입력 버튼의 배경색을 초록색으로 변경
+      idInputButton.style('background-color', 'red');
+      // "아이디 입력 완료" 텍스트를 표시하도록 설정
+    
+      showIdCompleteText = true;
+
+      buttons.forEach(button => {
+        button.hide();
+      });
+
+      // 입력이 완료되면 alert을 통해 메시지 표시
+  alert('아이디 입력이 완료되었습니다. 입력한 아이디: ' + inputText);
+
+  // shapeRect를 비활성화
+  shapeRectActive = false;
+
+    // "다시입력하기" 버튼 표시
+    retryButton.show();
+    }
+
+// 다시입력하기 버튼 누를 때 호출되는 함수
+function retryButtonPressed() {
+  console.log('다시입력하기 버튼이 눌렸습니다.');
+
+  // 다시입력하기 버튼을 누르면 입력 상태 초기화 및 아이디 입력창 활성화
+  inputText = '';
+  shapeRect.html(shapeText);
+  shapeRectActive = true;
+
+  // "입력완료" 상태를 초기화하고 아이디 입력창을 숨김
+  showIdCompleteText = false;
+  idInputButton.html('아이디입력');
+  idInputButton.show();
+
+  // 다시입력하기 버튼을 숨김
+  retryButton.hide();
+
+  // 현재 페이지를 처음 상태로 이동
+  window.location.href = '1214secondpage.html'; 
+}
+
+
+
+    //키보드 만드는 코드 
+    function createButtons() {
+      const buttonNames1 = 'qwertyuiopasdfghjklzxcvbnm1234567890._';
+      for (let i = 0; i < 38; i++) {
+        let button = createButton(buttonNames1[i]);
+
+// 함수를 통해 겹치지 않는 새로운 위치 얻기
+const newPosition = getNonOverlappingPosition();
+         button.position(newPosition.x, newPosition.y);
+         button.style('font-size', '17px'); //
+        button.size(30,30);
+        button.mousePressed(() => buttonPressed(buttonNames1[i]));
+        button.mouseOver(() => button.style('background-color', 'red'));
+        button.mouseOut(() => button.style('background-color', ''));
+        buttons.push(button);
+        button.hide();
+      }
+    }
+ 
+// 겹치지 않는 새로운 위치를 얻는 함수
+function getNonOverlappingPosition() {
+  const minDistance = 45; // 최소 간격
+  let newPosition;
+  let overlapping;
+
+  do {
+    newPosition = createVector(random(windowWidth/2-380, windowWidth/2+340), random(350, 500));
+    // 기존 버튼들과의 거리를 확인하여 겹치지 않도록 함
+    overlapping = buttons.some(btn => dist(newPosition.x, newPosition.y, btn.x, btn.y) < minDistance);
+  } while (overlapping);
+
+  return newPosition;
+}
+
+ //1. 이름 키보드 누르면
+ function buttonPressed(buttonName) {
+  console.log("Button pressed:", buttonName);
+      inputText += buttonName;
+      shapeRect.html(inputText);
+// 버튼 클릭 소리 재생
+  playRandomButtonSound();
+    }
+
+// 랜덤으로 버튼 소리 재생
+function playRandomButtonSound() {
+  // 버튼 소리 배열에서 랜덤으로 인덱스 선택
+  const randomIndex = floor(random(buttonClickSound.length));
+  // 선택된 버튼 소리 재생
+  buttonClickSound[randomIndex].play();
+}
+
+    function shapeRectPressed() {
+      console.log("ShapeRect pressed!");
+      buttons.forEach(button => {
+        button.html(button.elt.innerText);
+        button.hide(); // 버튼 보이기
+      });
+    };
+
+//2. 만 14세 미만 콘솔 
+function toggleCheckbox() {
+      // 체크 박스의 상태에 따라 콘솔에 메시지 출력
+      if (checkbox.checked()) {
+        console.log('만 14세 미만 체크박스가 클릭되었습니다.');
+      } else {
+        console.log('만 14세 미만 체크박스가 클릭되지 않았습니다.');
+      }
+    }
+
+
+ function mousePressed() {
+  // Change the position of all buttons when any mouse button is pressed
+  buttons.forEach(button => {
+    const newPosition = getNonOverlappingPosition();
+    button.position(newPosition.x, newPosition.y);
+  });
+}
+
+
+
+function draw() {
+  background(220);
+  fill(60, 93, 167);
+  noStroke();
+  rect(0, 0, windowWidth, windowHeight);
+  fill(249, 249, 249);
+  rect(0, 50, windowWidth, windowHeight);
+  imageMode(CENTER);
+  image(defaultImg, windowWidth / 2, 380, 800, 600);
+  image(title, windowWidth/2, 200,600,200);
+  image (toptitle, windowWidth/2,28,275,25);
+
+  // 아이디 키보드
+  // 1. "인스타그램 아이디"
+  fill(0);
+  textSize(16);
+  textAlign(LEFT);
+  text("경품 추첨을 위한 인스타그램 아이디를 입력해주세요", windowWidth / 2 - 180, 290);
+
+  // // 1. 아이디 입력 완료
+  if (showIdCompleteText) {
+    fill(255, 0, 0);
+    textSize(16);
+    textAlign();
+    text(inputText+ "님 환영합니다", windowWidth / 2 - 100, 370);
+  }
+
+  // Draw the clickable area after drawing the ad, so it appears on top
+  imageMode (CENTER);
+  image(nextImg, clickableAreaX, clickableAreaY, 60, 30);
+  image(backImg, backclickX, backclickY, 60,30);
+  image(secondad, windowWidth/2 -530, 380,200,600);
+}
+
+
+function mouseClicked() {
+  // Check if the click is within the bounds of the nextImg button
+  if (
+    mouseX > clickableAreaX -30 &&
+    mouseX < clickableAreaX + 20 &&
+    mouseY > clickableAreaY -15&&
+    mouseY < clickableAreaY +15&&
+    !checkbox.checked() && // Check if checkbox is not checked
+    showIdCompleteText
+  ) {
+    console.log("Clicked nextImg button");
+    window.location.href = 'middlead.html'; // Change the filename here
+  }
+
+  if (
+    mouseX > backclickX - 30 &&
+    mouseX < backclickX + 20 &&
+    mouseY > backclickY - 15 &&
+    mouseY < backclickY + 15
+  ) {
+    console.log("Clicked backImg button");
+    window.location.reload(); // Reload the page to the initial screen
+  }
+}
+  </script>
+</body>
+</html>

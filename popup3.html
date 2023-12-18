@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>p5.js Sketch Popup</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+    }
+
+    .scrollable-container {
+      height: 200px;
+      overflow-y: scroll;
+      scroll-behavior: smooth;
+      scroll-snap-type: y mandatory;
+      scrollbar-width: thin;
+    }
+
+    .oath-text {
+      font-size: 13px;
+      padding: 20px;
+      scroll-snap-align: start;
+    }
+
+    input[type="checkbox"] {
+      margin-top: 10px;
+    }
+
+    #closeBtn {
+      display: none;
+      margin-top: 10px;
+      font-size: 12px;
+    }
+
+    /* 추가된 스타일 */
+    #closeBtnLabel {
+      display: none;
+      font-size: 12px;
+      margin-top: 10px;
+      cursor: pointer;
+      color: blue;
+    }
+  </style>
+</head>
+
+<body>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+  <script>
+    window.resizeTo(300, 300);
+
+    let isScrollAtBottom = false;
+    let isChecked = false;
+
+    document.addEventListener('DOMContentLoaded', function () {
+      let container = document.querySelector('.scrollable-container');
+      let content = document.querySelector('#oath-text');
+      let checkbox = document.querySelector('#scrollCheckbox');
+      let closeBtn = document.querySelector('#closeBtn');
+      let closeBtnLabel = document.querySelector('#closeBtnLabel');
+
+      container.addEventListener('scroll', () => {
+        checkAndMarkCheckbox();
+      });
+
+      checkbox.addEventListener('change', () => {
+        isChecked = checkbox.checked;
+        toggleCloseButton();
+      });
+
+      closeBtnLabel.addEventListener('click', () => {
+        if (isChecked && isScrollAtBottom) {
+          window.close();
+        }
+      });
+
+      function checkAndMarkCheckbox() {
+        if (container.scrollTop + container.clientHeight >= content.offsetHeight - 1) {
+          isScrollAtBottom = true;
+          // 스크롤이 하단에 도착하면 체크박스 활성화
+          checkbox.removeAttribute('disabled');
+        } else {
+          isScrollAtBottom = false;
+          checkbox.setAttribute('disabled', 'disabled');
+        }
+      }
+
+      function toggleCloseButton() {
+        if (isChecked && isScrollAtBottom) {
+          closeBtn.style.display = 'inline';
+          closeBtnLabel.style.display = 'inline';
+        } else {
+          closeBtn.style.display = 'none';
+          closeBtnLabel.style.display = 'none';
+        }
+      }
+
+      function sendScrollPosition() {
+        window.parent.postMessage(container.scrollTop, '*');
+      }
+
+      window.addEventListener('message', function (event) {
+        container.scrollTop = event.data;
+      });
+    });
+  </script>
+
+  <div class="scrollable-container">
+    <div class="oath-text" id="oath-text">
+      마케팅 수신 동의서 <br> <br>
+
+      정보문화기술입문 A팀(이하 ‘A팀’이라고 합니다.)은 마케팅 수신 동의서를 형식상 제공합니다. <br>
+      저희는 마케팅을 제공하지 않거든요. <br>
+       하지만 3개가 있어야 뭔가 있어 보일것 같아서 적어봅니다. <br>
+      오해 마세요. <br>
+      수신 동의는 형식상 해주시면 됩니다. <br> <br>
+      다음의 내용을 자세히 읽어 보시고 모든 내용을 이해하신 후에 동의 여부를 결정해주시기 바랍니다. <br> <br>
+      제 1장(마케팅이란) <br> <br>
+      마케팅(영어: marketing)은 시장 경제(영어: exchange relationship) 또는 수요를 관리하는 경영학의 한 분야이다. <br>
+      소비자를 대상으로 고객을 창조하고 유지 · 관리함으로써 고정고객으로 만드는 모든 활동 즉, 고객과 관련된 모든 활동을 의미한다. <br>
+       마케팅은 광고, 영업 등을 포함하여 창의성을 갖는 산업으로 비쳐왔으며 또한 소비자가 가질 만한 미래의 요구와 욕구를 예측하는 일로 한정되었으나 21세기 이후의 마케팅은 어떤 잠재적인 욕구를 자극하여 표면상으로 이끌어 내는 행위나 동기로 용어의 적용 범위가 확대되고, 시장에서 벗어나 일상의 행위에서도 마케팅이라는 용어가 등장하게 되었다 <br> 
+      (출처 : 위키) <br> <br>
+      제 2장(마케팅의 개념) <br>
+      마케팅의 개념(concept)에 대한 명확한 역어(譯語)는 아직 없으나, 일반적으로는 마케팅을 이해하는 기본적 태도 내지 개념을 말한다. <br>
+       킹(R. L. King)은 미국에 있어서는 1900∼30년까지의 생산 중심적 시대와 1930∼50년대에 이르기까지의 협의의 판매관리 중심시대를 거쳐 1950년대 이후에 비로소 현대적인 마케팅의 개념이 확립되었다고 한다. <br> <br>
+      오늘날에 있어서의 마케팅 콘셉트(marketing concept)는 고객지향적 내지 소비자중심적인 경향을 가지는 반면, 경영 내부에서는 전사적 마케팅(total marketing) 내지 통합적 마케팅(integrated marketing)을 지향하는 것으로 이해되고 있다. <br> (출처 : 위키) <br> <br>
+      
+      제 3장(마케팅의 기능) <br> <br>
+      마케팅 기능에는 전통적인 마케팅 기능과 관리적 마케팅 기능이 있는데, 전자는 사회적 입장과 기업적 입장과의 교차점에서 민주적인 입장에서 해석하는 기능이고, 후자는 기업의 입장에서 본 마케팅 경영 기능이다. <br> 
+      전통적인 마케팅 기능에는 교환기능(판매·구매)과 물적 공급기능(운송·보관), 그리고 조성기능(금융·위험부담·시장정보·표준화·등급화) 등이 있다. <br>
+      1.  교환기능 (소유권 이전 기능)[편집] <br>
+      교환기능은 마케팅의 본질적 기능으로서, 생산자로부터 수요자에게 재화나 서비스를 교환시켜 소유를 이전시키는 기능으로 구매·판매기능으로 나뉜다. <br>
+      
+      2.  구매기능(購買機能) <br>
+      주로 중간상인에 의해 수행되는 것으로서, 구매상품의 종류·수량의 결정 공급원의 선정, 상품의 적합성 검사, 매매조건의 교섭·구입 등 세부기능이 포함된다. <br>
+      3.  판매기능(販賣機能) <br>
+      수요의 창조, 구매자의 발견, 구매조건의 교섭, 판매활동 및 서비스 등의 기능을 포함한다. <br>물적 공급기능[편집] 상품을 생산지에서 소비지까지 공급 저장하고 수요와 공급을 장소적·시간적으로 적합시키는 기능이다. <br>
+      4.  조성기능[편집] <br>
+      교환·물적공급 기능 등을 효과적으로 달성하기 위한 재환경을 조성 내지 보조·촉진하는 기능으로 금융기능·위험부담기능·시장정보기능 등이 있다. <br> 
+      (1) 금융기능(金融機能) <br>
+       상품구입에 필요한 자금을 조달하는 기능으로 외상판매에 의한 구매자의 자금지원 같은 것이다. <br>
+      (2) 위험부담기능(危險負擔機能) <br>
+      상품의 유통과정에서 생기는 위험을 담당하는 기능으로서, 상품의 변질·파괴 등의 물질적 위험, 가격 변동으로 인한 손해위험, 신용거래에서 파생하는 대손위험 등이다. <br> 
+      (3) 시장정보기능(市場情報機能) <br>
+      배급활동의 수행에 필요한 의사결정을 위해 시장정보를 과학적으로 수집·분석하는 기능이다. 이 시장정보 기능으로 인해 현대적인 시장조사가 발달하게 되었다. <br> <br>
+      
+      제 4장(마케팅 개념 설명을 하는 이유) <br> <br>
+      고민을 하다가 해당 내용이 제일 좋을 것 같아서 기입하였습니다. <br>
+      별 이유는 없구요, 마케팅을 공부하신 적이 있으신가요? <br>
+       존경합니다. <br>
+       화이팅 <br>
+      
+      !!!! <br>
+      !
+      <br>
+      1
+      <br>
+
+    </div>
+  </div>
+  <input type="checkbox" id="scrollCheckbox" disabled>
+  <label for="scrollCheckbox">저는 내용을 읽었고, 이해합니다</label>
+
+<!-- 수정된 버튼과 라벨 -->
+<button id="closeBtn">창닫기</button>
+<label id="closeBtnLabel" for="scrollCheckbox">🪟❌</label>
+</body>
+
+</html>
+ 

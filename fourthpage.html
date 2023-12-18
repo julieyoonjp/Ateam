@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+  <style>
+    body {
+      margin: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background-color: #ececec;
+    }
+  </style>
+  <title>Your p5.js Sketch</title>
+</head>
+<body>
+  <script>
+let toptitle;
+//captcha
+let captcha;
+let captchaX;
+let captchaY;
+let squareX;
+let squareY = 120;
+let isOpened = true;
+let popup;
+let checkImg;
+let defaultImg;
+let fourthtitle;
+let autoNo;
+
+//4. 자동등록방지
+let completeButton;
+let hintButton;
+let completedButtonClickCount = 0;
+
+// 다율 새로 돋보깅
+let mouseCircleSize = 0.1; // 동그라미 크기
+let magnifierSize = 50; // 돋보기 크기
+    let mouseXPos = 0; // 마우스 X 위치
+    let mouseYPos = 0; // 마우스 Y 위치
+    let enableMagnifier = false; // 돋보기 활성화 여부
+   
+//다음페이지
+let nextImg;
+let bookad = true; // Set this to true to display the ad
+let nextImgX = 400;
+let nextImgY = 500;
+let clickableAreaX;
+let clickableAreaY;
+
+let carcaptchaClosed = false;
+
+let magnifierLayer;
+let magnifierMask;
+
+let adone;
+let adtwo;
+let adthree;
+let adfour;
+
+function preload(){
+  autoNo = loadImage("assets/autoNo.png");
+  captcha = loadImage("assets/captcha.png");
+  checkImg = loadImage("assets/check.png");
+  defaultImg = loadImage("assets/defaultbg.png");
+  toptitle = loadImage("assets/toptitle.png");
+  fourthtitle = loadImage ("assets/fourthtitle.png");
+
+  //중간광고 프리로드
+  nextImg = loadImage("assets/next.png");
+  adone = loadImage ("assets/adone.png");
+  adtwo = loadImage ("assets/adtwo.png");
+  adthree = loadImage ("assets/adthree.png");
+  adfour = loadImage ("assets/adfour.png");
+
+
+}
+
+function setup() {
+  createCanvas(windowWidth,windowHeight);
+  isOpened = false;
+  squareX = windowWidth/2 -125;
+  squareY = 530;
+  captchaX = windowWidth/2 -135;
+  captchaY = 510;
+
+  //다음페이지
+  clickableAreaX = windowWidth/2;
+  clickableAreaY = 600
+  
+  //4. 자동등록
+    // 입력란 생성
+    robotThdInput = createInput();
+    robotThdInput.position(windowWidth / 2 -160, 420);
+    robotThdInput.size(200, 40);
+    robotThdInput.value('자동등록방지 문자를 입력해 주세요'); // 초기값 설정
+    robotThdInput.attribute('placeholder', '자동등록방지 문자를 입력해 주세요'); // 플레이스홀더 텍스트 설정
+
+    // 힌트 버튼 생성
+    hintButton = createButton('힌트');
+    hintButton.position(windowWidth / 2 +150, 420);
+    hintButton.size(45, 45);
+    hintButton.style('display', 'none');
+    hintButton.style('background', 'red');
+    hintButton.mousePressed(showHint); // 힌트 버튼 클릭 시 showHint 함수 호출
+    
+
+    // "입력완료" 버튼 생성
+    completeButton = createButton('입력완료');
+    completeButton.position(windowWidth / 2 +60, 420);
+    completeButton.size(80, 45);
+    completeButton.mousePressed(checkInput);
+
+    magnifierLayer = createGraphics(magnifierSize*3, magnifierSize*3)
+
+    magnifierMask = createGraphics(magnifierSize*3, magnifierSize*3)
+    // magnifierMask.background(0)
+    // magnifierMask.noStroke(255)
+    magnifierMask.remove()
+    magnifierMask.fill(255)
+    magnifierMask.circle(magnifierSize*1.5, magnifierSize*1.5, magnifierSize*3)
+}
+
+// "입력완료" 버튼 클릭 시 호출되는 함수
+function checkInput() {
+  // 입력된 텍스트와 randomLetters의 텍스트를 비교
+  if (robotThdInput.value() === 'QWR67P') {
+    console.log('입력한 텍스트와 텍스트가 일치합니다.');
+    // 일치할 경우 초록색으로 변경
+    robotThdInput.style('color', 'green');
+    // 입력 성공 메시지 텍스트
+    successMessage();
+
+  } else {
+    console.log('입력한 텍스트와 텍스트가 일치하지 않습니다.');
+    // 불일치할 경우 빨간색으로 변경
+    robotThdInput.style('color', 'red');
+    // 입력 실패 메시지 텍스트
+    errorMessage();
+     // 1초 후에 입력란 초기화
+     setTimeout(resetInputField, 1000);
+  }
+
+   // 입력완료 버튼 클릭 횟수 증가
+   completedButtonClickCount++;
+
+   // 3번 이상 클릭 시 힌트 버튼 표시
+  if (completedButtonClickCount >= 1) {
+    hintButton.style('display', 'block');
+  }
+  }
+
+// 입력란 클릭 시 호출되는 함수
+function inputFieldClicked() {
+   // 입력란 초기화
+   resetInputField();
+}
+
+  // 입력란 초기화 함수
+function resetInputField() {
+   // 입력란 초기화
+   robotThdInput.value('자동등록방지 문자를 입력해 주세요');
+  // 플레이스홀더 텍스트 설정
+  robotThdInput.attribute('placeholder', '자동등록방지 문자를 입력해 주세요');
+  // 텍스트 색상을 검정색으로 설정
+  robotThdInput.style('color', 'black');
+}
+
+
+function successMessage() {
+  // 입력 성공 메시지
+  alert('입력되었습니다. 로봇 캡챠 인증을 해주세요.');
+}
+
+function errorMessage() {
+  // 입력 실패 메시지
+  alert('틀렸습니다. 다시 입력해주세요.');
+}
+
+
+// 힌트 버튼 클릭 시 호출되는 함수
+function showHint() {
+  // 돋보기 효과를 활성화
+  enableMagnifier = true;
+}
+
+
+
+function draw() {
+  background(220);
+  fill(60, 93, 167);
+  noStroke();
+  rect(0, 0, windowWidth, windowHeight);
+  fill(249, 249, 249);
+  rect(0, 50, windowWidth, windowHeight);
+  imageMode(CENTER);
+  image(defaultImg, windowWidth / 2, 380, 800, 600);
+  image(fourthtitle, windowWidth/2, 200,600,200);
+  image (toptitle, windowWidth/2,28,275,25);
+
+
+  // autoNo 이미지를 표시
+  let autoNoWidth = 450; // 이미지의 원하는 폭
+  let autoNoHeight = 180; // 이미지의 원하는 높이
+  let autoNoX = windowWidth / 2+10 
+  let autoNoY = 320; // 이미지의 y 좌표
+  image(autoNo, autoNoX, autoNoY, autoNoWidth, autoNoHeight);
+
+
+  // 로봇이 아닙니다
+  imageMode(CORNER);
+  image(captcha, captchaX, captchaY, 270, 66);
+  rect(squareX, squareY, 24);
+  if (isOpened) {
+    image(checkImg, captchaX, captchaY, 270, 66);
+  }
+
+  //다율 네모 
+  // fill(100); // 색상 설정 (빨간색)
+  // rect(windowWidth / 2 - 200, 250 - 50, 400, 300);
+  
+  // 랜덤한 위치에 "비밀번호" 텍스트 추가
+  fill(0); 
+  textSize(8);
+  textAlign(CENTER, CENTER);
+  text("QWR67P", windowWidth / 2-120, 360);
+
+   
+  // 동그라미 그리기
+      fill(249, 249, 249);
+      stroke(0);
+      strokeWeight(0);
+      ellipse(mouseXPos, mouseYPos, mouseCircleSize, mouseCircleSize);
+
+
+
+
+ // 돋보기 효과 
+ let magnifierX = mouseXPos - magnifierSize / 2;
+ let magnifierY = mouseYPos - magnifierSize / 2;
+
+ // 힌트 버튼을 누를 때만 돋보기 효과 적용
+ if (enableMagnifier) {
+    // 특정 영역 안에서만 돋보기 효과 적용
+ if (
+    mouseXPos >= autoNoX - autoNoWidth / 2 &&
+    mouseXPos <= autoNoX + autoNoWidth / 2 &&
+    mouseYPos >= autoNoY - autoNoHeight / 2 &&
+    mouseYPos <= autoNoY + autoNoHeight / 2
+  ) {
+     // 동그라미 모양의 돋보기 효과를 그리기
+     noFill();
+    stroke(255);
+    ellipse(magnifierX, magnifierY, magnifierSize);
+
+  //배경을 2배 확대해서 그리기
+    //  image(get(magnifierX, magnifierY, magnifierSize, magnifierSize), magnifierX - magnifierSize, magnifierY - magnifierSize, magnifierSize * 3, magnifierSize * 3);
+    magnifierLayer.image(get(magnifierX, magnifierY, magnifierSize, magnifierSize), 0, 0, magnifierSize * 3, magnifierSize * 3);
+    //  magnifierLayer.blend(magnifierMask.get(), 0, 0, magnifierSize * 3, magnifierSize * 3, 0, 0, magnifierSize * 3, magnifierSize * 3, MULTIPLY)
+    let magnifierImage =get(magnifierX, magnifierY, magnifierSize, magnifierSize)
+    magnifierImage.mask(magnifierMask.get())
+    image(magnifierImage, magnifierX - magnifierSize, magnifierY - magnifierSize, magnifierSize * 3, magnifierSize * 3)
+    stroke(0)
+    strokeWeight(5)
+    noFill()
+    circle(mouseX, mouseY, magnifierSize * 3)
+    strokeWeight(0)
+
+  }
+}
+
+  // Draw the clickable area after drawing the ad, so it appears on top
+  image(nextImg, clickableAreaX, clickableAreaY, 60, 30);
+
+  image(adone,windowWidth/2+420, 300,230,100);
+  image(adtwo,windowWidth/2+420, 410,230,100);
+  image(adthree,windowWidth/2-920, 220,400,400);
+  image(adfour,windowWidth/2+420, 190, 230,100);
+
+
+//  fill(0) 
+//   textSize(9);
+//   textAlign(CENTER);
+//   text("자동등록가입 방지를 위해 문자를 찾아 입력하세요", windowWidth / 2 -60, 480);
+}
+
+function mouseMoved() {
+      // 마우스 위치 갱신
+      mouseXPos = mouseX;
+      mouseYPos = mouseY;
+    }
+
+      function mouseClicked() {
+    if (
+    mouseX >= squareX &&
+    mouseX <= squareX + 24 &&
+    mouseY >= squareY &&
+    mouseY <= squareY + 24
+  ) {
+    popup = window.open('carcaptcha.html', 'Car Captcha', 'width=400,height=600');
+    popup.focus();
+    
+    popup.onunload = function() {
+      isOpened = true;
+      carcaptchaClosed = true; 
+    };
+  }
+  if (carcaptchaClosed &&
+    mouseX >= clickableAreaX &&
+    mouseX <= clickableAreaX + 60 &&
+    mouseY >= clickableAreaY &&
+    mouseY <= clickableAreaY + 30
+  ) {
+    window.location.href = 'fifthpage.html'; // Redirect to fifthpage.html
+  }
+}
+
+  </script>
+</body>
+</html>

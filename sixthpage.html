@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+  <script src="confetti.js"></script> <!-- Include the confetti.js script -->
+  <style>
+    body {
+      margin: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background-color: #ececec;
+    }
+  </style>
+  <title>Your p5.js Sketch</title>
+</head>
+<body>
+  <script>
+let savedData1 = localStorage.getItem("savedData1");
+let savedData2 = localStorage.getItem("savedData2");
+let savedData3 = localStorage.getItem("savedData3");
+let defaultImg;
+let toptitle;
+
+
+let confetti = [];
+let lastConfettiTime = 0;
+let rainbowImg;
+let boyImg;
+let boyImgY = 1200;
+let coffeeImg;
+let coffeeImgY = 1200;
+let restartImg;
+let latestSnapshotImg;
+
+let continuousText1 = "💋🙆‍♀️ 축하드립니다! 프로필을 완성 💯❤️ ";
+let continuousText2 = "📣 刁ㅋ㉪刁ㅋ㉪ 해당 프로필로 경품 이벤트에 참여하시겠습니까?👀 ";
+let continuousText3 = "🙏이 화면 사진을 인스타 스토리에 올려주시오 🙏 @queserasera_julie 태그 필수❗❤️ ";
+let continuousText4 = "이벤트 참여자 중 추첨을 통해 당첨된 3명에게 위 인스타그램 아이디로 메가커피 상품권을 드립니다 💁‍♂️☕";
+
+function preload(){
+defaultImg = loadImage("assets/defaultbg.png");
+toptitle = loadImage("assets/toptitle.png");
+rainbowImg = loadImage ("assets/rainbow.png");
+boyImg = loadImage ("assets/boy.png");
+coffeeImg = loadImage ("assets/coffee.png");
+restartImg = loadImage ("assets/restart.png");
+}
+
+
+function setup() {
+    createCanvas(windowWidth,windowHeight);
+    for (let i = 0; i < 100; i++) {
+    confetti.push(new Confetti(random(width), random(height), random(2, 5)));
+
+  }
+
+  // Create text boxes for displaying saved data
+  let displayTextBox1 = createInput("");
+  displayTextBox1.position(windowWidth/2-360, windowHeight / 2-300);
+  displayTextBox1.size(300, 60);
+  displayTextBox1.style('font-size', '18px'); // Increase text size
+  displayTextBox1.attribute("readonly", true);
+
+  let displayTextBox2 = createInput("");
+  displayTextBox2.position(windowWidth/2-360, windowHeight /2-225);
+  displayTextBox2.size(300, 60);
+  displayTextBox2.style('font-size', '18px'); // Increase text size
+  displayTextBox2.attribute("readonly", true);
+
+  let displayTextBox3 = createInput("");
+  displayTextBox3.position(windowWidth/2-360,windowHeight / 2-150);
+  displayTextBox3.size(300, 60);
+  displayTextBox3.style('font-size', '18px'); // Increase text size
+  displayTextBox3.attribute("readonly", true);
+
+
+  // Set up the image element
+  latestSnapshotImg = createImg('');
+      latestSnapshotImg.id('latestSnapshot');
+      latestSnapshotImg.position(windowWidth/2-40, windowHeight /2-340);
+      latestSnapshotImg.size(400, 300);
+
+      // Retrieve the latest photo data from localStorage
+      const latestPhotoData = localStorage.getItem('latestPhotoData');
+      if (latestPhotoData) {
+        latestSnapshotImg.attribute('src', latestPhotoData);
+      }
+
+  if (savedData1) {
+    savedData1 = JSON.parse(savedData1);
+    let { accumulatedText } = savedData1;
+    displayTextBox1.value(" Instagram ID: " + "@" + accumulatedText);
+  } else {
+    displayTextBox1.value("accumulatedText");
+  }
+
+  if (savedData2) {
+    savedData2 = JSON.parse(savedData2);
+    let { year, month, day } = savedData2;
+    displayTextBox2.value( "생년월일:  " + year + " . " + month + " . " + day );
+  } else {
+    displayTextBox2.value("No data from Source 2 found.");
+  }
+
+  if (savedData3) {
+    savedData3 = JSON.parse(savedData3);
+    let { age } = savedData3;
+    displayTextBox3.value(" 나이:  " + age + " 세");
+  } else {
+    displayTextBox3.value("undefined");
+  }
+
+  // Update the snapshot periodically (you might use events or other triggers in a real application)
+  setInterval(updateLatestSnapshot, 1000);
+}
+
+function updateLatestSnapshot() {
+  const latestSnapshotImg = select('#latestSnapshot'); // Using p5.js function for DOM selection
+  const latestPhotoData = localStorage.getItem('latestPhotoData');
+
+  if (latestPhotoData) {
+    latestSnapshotImg.attribute('src', latestPhotoData);
+  } else {
+    latestSnapshotImg.attribute('src', ''); // Clear the image if there's no snapshot
+  }
+}
+
+function draw() {
+  background(220);
+  fill(60,93,167);
+  noStroke();
+  rect (0,0,windowWidth,windowHeight);
+  fill(249, 249, 249);
+  rect(0, 50, windowWidth, windowHeight);
+  imageMode(CORNERS);
+  image(rainbowImg,0,50,windowWidth,windowHeight);
+  imageMode (CENTER);
+  image (defaultImg,windowWidth/2, 380,800,600);
+  image (toptitle, windowWidth/2,28,275,25);
+  image (restartImg, windowWidth/2, 800, 400,200);
+  if(boyImgY > 490){
+    boyImgY -= 3;
+  }
+  image (boyImg, 160, boyImgY,960,960);
+
+  if(coffeeImgY > 490){
+    coffeeImgY -= 3;
+  }
+  image (coffeeImg, windowWidth-200, coffeeImgY,450,900);
+
+   // Display continuous text below text boxes
+  fill(0);
+  textSize(30);
+  textAlign(CENTER, CENTER);
+  text(continuousText1, windowWidth / 2, windowHeight / 2-400);
+
+  fill(0);
+  textSize(17);
+  textAlign(CENTER, CENTER);
+  text(continuousText2, windowWidth / 2, windowHeight / 2+20);
+
+  fill(0);
+  textSize(17);
+  textAlign(CENTER, CENTER);
+  text(continuousText3, windowWidth / 2, windowHeight / 2+40);
+
+  fill(0);
+  textSize(15);
+  textAlign(CENTER, CENTER);
+  text(continuousText4, windowWidth / 2, windowHeight / 2+60);
+
+  
+  if (frameCount - lastConfettiTime >= 60 * 6) {
+    generateConfetti();
+    lastConfettiTime = frameCount;
+  }
+
+  for (let i = 0; i < confetti.length; i++) {
+    confetti[i].confettiDisplay();
+  }
+
+}
+
+function generateConfetti() {
+  // Generate multiple confetti objects
+  for (let i = 0; i < 50; i++) {
+    confetti.push(new Confetti(random(width), random(height), random(2, 5)));
+  }
+}
+
+function mousePressed() {
+      // Check if the mouse is over the restartImg
+      if (
+        mouseX > windowWidth / 2 - 200 &&
+        mouseX < windowWidth / 2 + 200 &&
+        mouseY > 700 &&
+        mouseY < 900
+      ) {
+        // Redirect to firstpage.html
+        window.location.href = 'firstpage.html';
+      }
+    }
+
+</script>
+</body>
+</html>

@@ -1,0 +1,150 @@
+<!-- 자식 창인 popup.html 파일 -->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>p5.js Sketch Popup</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+    }
+
+    .scrollable-container {
+      height: 200px;
+      overflow-y: scroll;
+      scroll-behavior: smooth;
+      scroll-snap-type: y mandatory;
+      scrollbar-width: thin;
+    }
+
+    .oath-text {
+      font-size: 13px;
+      padding: 20px;
+      scroll-snap-align: start;
+    }
+
+    input[type="checkbox"] {
+      margin-top: 10px;
+    }
+
+    #closeBtn {
+      display: none;
+      margin-top: 10px;
+      font-size: 12px;
+    }
+
+    /* 추가된 스타일 */
+    #closeBtnLabel {
+      display: none;
+      font-size: 12px;
+      margin-top: 10px;
+      cursor: pointer;
+      color: blue;
+    }
+  </style>
+</head>
+
+<body>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+  <script>
+    window.resizeTo(300, 300);
+
+    let isScrollAtBottom = false;
+    let isChecked = false;
+
+    document.addEventListener('DOMContentLoaded', function () {
+      let container = document.querySelector('.scrollable-container');
+      let content = document.querySelector('#oath-text');
+      let checkbox = document.querySelector('#scrollCheckbox');
+      let closeBtn = document.querySelector('#closeBtn');
+      let closeBtnLabel = document.querySelector('#closeBtnLabel');
+
+      container.addEventListener('scroll', () => {
+        checkAndMarkCheckbox();
+      });
+
+      checkbox.addEventListener('change', () => {
+        isChecked = checkbox.checked;
+        toggleCloseButton();
+      });
+
+      closeBtnLabel.addEventListener('click', () => {
+        if (isChecked && isScrollAtBottom) {
+          // 부모 창으로 메시지 전송
+          window.opener.postMessage('Button1Pressed', '*');
+          window.close();
+        }
+      });
+
+      function checkAndMarkCheckbox() {
+        if (container.scrollTop + container.clientHeight >= content.offsetHeight - 1) {
+          isScrollAtBottom = true;
+          // 스크롤이 하단에 도착하면 체크박스 활성화
+          checkbox.removeAttribute('disabled');
+        } else {
+          isScrollAtBottom = false;
+          checkbox.setAttribute('disabled', 'disabled');
+        }
+      }
+
+      function toggleCloseButton() {
+        if (isChecked && isScrollAtBottom) {
+          closeBtn.style.display = 'inline';
+          closeBtnLabel.style.display = 'inline';
+        } else {
+          closeBtn.style.display = 'none';
+          closeBtnLabel.style.display = 'none';
+        }
+      }
+
+      function sendScrollPosition() {
+        window.parent.postMessage(container.scrollTop, '*');
+      }
+
+      window.addEventListener('message', function (event) {
+        container.scrollTop = event.data;
+      });
+    });
+  </script>
+
+  <div class="scrollable-container">
+    <div class="oath-text" id="oath-text">
+      <h2>개인정보처리동의서</h2>
+      <p>정보문화기술입문 A팀(이하 ‘A팀’이라고 합니다.)은 개인정보보호법 등 관련 법령상의 개인정보보호규정을 준수하여 귀하의 개인정보보호에 최선을 다하고 있을 겁니다.</p>
+      <p>(아마도?)</p>
+      <p>A팀은 개인정보보호법에 근거하여 다음과 같은 내용으로 개인정보를 수집 및 처리하고자 합니다.</p>
+      <p>다음의 내용을 자세히 읽어보시고 모든 내용을 이해하신 후에 동의 여부를 결정해주시기 바랍니다.</p>
+      <p><strong>제 1조(개인정보수집 및 이용 목적)</strong><br>
+        이용자가 제공한 모든 정보는 다음의 목적을 위해 활용하며, 목적 이외의 용도로는 사용되지 않습니다.<br>
+        - 기프티콘 발송, 기념 사진 촬영</p>
+      <p><strong>제 2조(개인정보 수집 및 이용 항목)</strong><br>
+        A팀은 개인정보 수집 목적을 위하여 다음과 같은 정보를 수집합니다.<br>
+        - 나이, 생년월일, 당신의 아름다운 얼굴</p>
+      <p><strong>제 3조(개인정보 보유 및 이용 기간)</strong><br>
+        1. 수집한 개인 정보는 수집, 이용, 동의일로부터 일주일 간 보관 및 이용합니다<br>
+        2. 개인정보 보유기간의 경과, 처리목적 달성 등 개인정보가 불필요하게 되었을 때는 지체없이 해당 개인정보를 파기합니다. 완전히 폭파시킵니다. <br>
+        산산조각 냅니다.(막이래~ㅋ)</p>
+      <p><strong>제 4조(동의 거부 관리)</strong><br>
+        귀하는 본 안내에 따른 개인정보 수집, 이용에 대해 동의를 거부할 수 있으며, 이에 따른 불이익은 있습니다.<br>
+        기프티콘 안줄겁니다.<br>
+        사진이랑 정보를 주세요.<br>
+        그리고 우리를 태그해주세요. 잉.</p>
+    </div>
+  </div>
+    </div>
+  </div>
+
+  <input type="checkbox" id="scrollCheckbox" disabled>
+  <label for="scrollCheckbox">저는 내용을 읽었고, 이해합니다</label>
+
+  <!-- 수정된 버튼과 라벨 -->
+  <button id="closeBtn">창닫기</button>
+  <label id="closeBtnLabel" for="scrollCheckbox">🪟❌</label>
+
+</body>
+
+</html>

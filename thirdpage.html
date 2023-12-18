@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>p5.js Sketch</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+</head>
+
+<body>
+
+  <script>
+    let popup; // 자식 창을 저장하기 위한 변수
+
+    // OpenPopup 열기
+    function openPopup() {
+      popup = window.open('popup.html', 'Popup', 'width=200,height=150'); // 창 크기 조절
+      if (popup) {
+        popup.addEventListener('message', function (event) {
+          console.log('Message from child:', event.data);
+        });
+      }
+    }
+
+    // OpenPopup2 열기
+    function openPopup2() {
+      let popup2 = window.open('popup2.html', 'Popup2', 'width=800,height=600');
+      if (popup2) {
+        popup2.onload = function () {
+          // OpenPopup2가 로드되면 실행되는 코드
+          popup2.document.body.innerHTML += '<button onclick="openPopup2Second()">Open Popup 2 Second</button>';
+        };
+      }
+    }
+
+    // OpenPopup3 열기
+    function openPopup3() {
+      let popup3 = window.open('popup3.html', 'Popup3', 'width=800,height=600');
+      if (popup3) {
+        // 처리 코드 추가
+      }
+    }
+
+    // 부모 창 스크롤 이벤트 처리
+ 
+  </script>
+
+</body>
+<script src="sunmin.js"></script>
+
+</html>
